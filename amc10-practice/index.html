@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMC10 数学精进系统 | Math Mastery System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- KaTeX for LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>AMC10 数学精进系统</h1>
+                <p class="subtitle">Math Mastery System</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="student-id">学生账号 Student ID</label>
+                    <input type="text" id="student-id" placeholder="请输入账号" required>
+                </div>
+                <div class="form-group">
+                    <label for="access-code">动态密码 Access Code</label>
+                    <input type="password" id="access-code" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="btn btn-primary">进入系统 Enter</button>
+            </form>
+            <p class="login-hint">请向老师获取账号和密码</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app" class="screen">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <h1 class="logo">AMC10 精进</h1>
+                <span class="student-name" id="display-student-name"></span>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-icon" id="btn-notes" title="全局笔记">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                </button>
+                <button class="btn btn-icon" id="btn-report" title="成长报告">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                </button>
+                <button class="btn btn-icon" id="btn-badges" title="我的徽章">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btn-logout">退出</button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="main-nav">
+            <button class="nav-tab active" data-tab="practice">
+                <span class="tab-icon">📝</span>
+                <span class="tab-text">刷题练习</span>
+            </button>
+            <button class="nav-tab" data-tab="review">
+                <span class="tab-icon">🔍</span>
+                <span class="tab-text">错题本</span>
+            </button>
+            <button class="nav-tab" data-tab="weakness">
+                <span class="tab-icon">🎯</span>
+                <span class="tab-text">弱点诊断</span>
+            </button>
+            <button class="nav-tab" data-tab="history">
+                <span class="tab-icon">📊</span>
+                <span class="tab-text">练习记录</span>
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Practice Tab -->
+            <section id="tab-practice" class="tab-content active">
+                <!-- Filter Panel -->
+                <div class="filter-panel">
+                    <div class="filter-group">
+                        <label>年份 Year</label>
+                        <select id="filter-year">
+                            <option value="all">全部</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>类型 Contest</label>
+                        <select id="filter-contest">
+                            <option value="all">全部</option>
+                            <option value="A">AMC10A</option>
+                            <option value="B">AMC10B</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>难度 Difficulty</label>
+                        <select id="filter-difficulty">
+                            <option value="all">全部</option>
+                            <option value="easy">简单 Easy (1-10)</option>
+                            <option value="medium">中等 Medium (11-20)</option>
+                            <option value="hard">困难 Hard (21-25)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>考点 Topic</label>
+                        <select id="filter-topic">
+                            <option value="all">全部</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>模式 Mode</label>
+                        <select id="filter-mode">
+                            <option value="practice">自由练习</option>
+                            <option value="timed">计时模式</option>
+                            <option value="exam">模拟考试</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="btn-start-practice">开始练习 Start</button>
+                </div>
+
+                <!-- Question Display Area -->
+                <div id="practice-area" class="practice-area hidden">
+                    <!-- Timer -->
+                    <div class="timer-bar">
+                        <div class="timer-display">
+                            <span id="timer-icon">⏱️</span>
+                            <span id="timer-value">00:00</span>
+                        </div>
+                        <div class="progress-info">
+                            <span id="question-progress">1 / 25</span>
+                            <span id="question-source"></span>
+                        </div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="question-card">
+                        <div class="question-header">
+                            <div class="question-tags" id="question-tags"></div>
+                            <button class="btn btn-icon btn-sm" id="btn-add-note" title="添加笔记">
+                                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Bilingual Question -->
+                        <div class="question-content">
+                            <div class="question-text" id="question-text-en"></div>
+                            <div class="question-text question-text-zh" id="question-text-zh"></div>
+                        </div>
+
+                        <!-- Choices -->
+                        <div class="choices-container" id="choices-container"></div>
+
+                        <!-- Action Buttons -->
+                        <div class="question-actions">
+                            <button class="btn btn-secondary" id="btn-prev-question" disabled>上一题</button>
+                            <button class="btn btn-primary" id="btn-submit-answer">提交答案 Submit</button>
+                            <button class="btn btn-secondary" id="btn-next-question">下一题</button>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Panel (shown after answering) -->
+                    <div class="analysis-panel hidden" id="analysis-panel">
+                        <div class="analysis-header">
+                            <h3 id="analysis-result-title"></h3>
+                            <span class="analysis-result-icon" id="analysis-result-icon"></span>
+                        </div>
+
+                        <!-- Solution -->
+                        <div class="analysis-section">
+                            <h4>📖 详细解析 Solution</h4>
+                            <div class="solution-content" id="solution-content"></div>
+                        </div>
+
+                        <!-- Key Concepts -->
+                        <div class="analysis-section">
+                            <h4>🔑 关键概念 Key Concepts</h4>
+                            <div class="concepts-list" id="concepts-list"></div>
+                        </div>
+
+                        <!-- Math Terms -->
+                        <div class="analysis-section">
+                            <h4>📚 数学术语 Math Terms</h4>
+                            <div class="terms-list" id="terms-list"></div>
+                        </div>
+
+                        <!-- Similar Problems -->
+                        <div class="analysis-section">
+                            <h4>🔗 相似题目 Similar Problems</h4>
+                            <div class="similar-problems" id="similar-problems"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Review Tab (Wrong Questions) -->
+            <section id="tab-review" class="tab-content">
+                <div class="section-header">
+                    <h2>错题本 Wrong Answer Review</h2>
+                    <p>温故知新，攻克薄弱环节</p>
+                </div>
+                <div class="review-filters">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="unmastered">未掌握</button>
+                    <button class="filter-btn" data-filter="reviewing">复习中</button>
+                    <button class="filter-btn" data-filter="mastered">已掌握</button>
+                </div>
+                <div class="review-list" id="review-list"></div>
+            </section>
+
+            <!-- Weakness Tab -->
+            <section id="tab-weakness" class="tab-content">
+                <div class="section-header">
+                    <h2>弱点诊断 Weakness Analysis</h2>
+                    <p>精准定位，有的放矢</p>
+                </div>
+                <div class="weakness-dashboard">
+                    <div class="chart-container">
+                        <canvas id="weakness-radar-chart"></canvas>
+                    </div>
+                    <div class="weakness-details" id="weakness-details"></div>
+                </div>
+                <div class="recommended-practice">
+                    <h3>📌 推荐练习 Recommended Practice</h3>
+                    <div id="recommended-questions"></div>
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section id="tab-history" class="tab-content">
+                <div class="section-header">
+                    <h2>练习记录 Practice History</h2>
+                    <p>见证每一步成长</p>
+                </div>
+                <div class="history-stats">
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-total-questions">0</span>
+                        <span class="stat-label">总做题数</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-accuracy">0%</span>
+                        <span class="stat-label">正确率</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-streak">0</span>
+                        <span class="stat-label">连续天数</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-time">0h</span>
+                        <span class="stat-label">累计时长</span>
+                    </div>
+                </div>
+                <div class="history-chart">
+                    <canvas id="history-line-chart"></canvas>
+                </div>
+                <div class="history-list" id="history-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notes Modal -->
+    <div class="modal" id="notes-modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>📒 全局笔记 Global Notes</h2>
+                <button class="btn btn-icon modal-close" data-modal="notes-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="notes-toolbar">
+                    <input type="text" id="notes-search" placeholder="搜索笔记...">
+                    <button class="btn btn-primary btn-sm" id="btn-new-note">+ 新笔记</button>
+                </div>
+                <div class="notes-container">
+                    <div class="notes-list" id="notes-list"></div>
+                    <div class="note-editor">
+                        <input type="text" id="note-title" placeholder="笔记标题">
+                        <div class="note-tags-input">
+                            <input type="text" id="note-tags" placeholder="标签（用逗号分隔）">
+                        </div>
+                        <textarea id="note-content" placeholder="在这里写笔记... 支持 LaTeX: $x^2$"></textarea>
+                        <div class="note-preview" id="note-preview"></div>
+                        <div class="note-actions">
+                            <button class="btn btn-secondary" id="btn-cancel-note">取消</button>
+                            <button class="btn btn-primary" id="btn-save-note">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal" id="report-modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>📊 成长报告 Growth Report</h2>
+                <button class="btn btn-icon modal-close" data-modal="report-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-period">
+                    <button class="period-btn active" data-period="week">本周</button>
+                    <button class="period-btn" data-period="month">本月</button>
+                    <button class="period-btn" data-period="all">全部</button>
+                </div>
+                <div class="report-content" id="report-content">
+                    <div class="report-summary">
+                        <div class="report-card">
+                            <h4>练习概况</h4>
+                            <div id="report-summary-stats"></div>
+                        </div>
+                        <div class="report-card">
+                            <h4>能力变化</h4>
+                            <canvas id="report-ability-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="report-details">
+                        <div class="report-card">
+                            <h4>各考点掌握度</h4>
+                            <canvas id="report-topics-chart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h4>学习建议</h4>
+                            <div id="report-suggestions"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="btn-export-report">导出报告 Export</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badges Modal -->
+    <div class="modal" id="badges-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏆 我的徽章 My Badges</h2>
+                <button class="btn btn-icon modal-close" data-modal="badges-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="badges-grid" id="badges-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Note Modal -->
+    <div class="modal" id="quick-note-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 添加笔记</h2>
+                <button class="btn btn-icon modal-close" data-modal="quick-note-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="quick-note-question" id="quick-note-question"></p>
+                <textarea id="quick-note-content" placeholder="记录你的想法、解题技巧..."></textarea>
+                <div class="quick-note-actions">
+                    <button class="btn btn-secondary modal-close" data-modal="quick-note-modal">取消</button>
+                    <button class="btn btn-primary" id="btn-save-quick-note">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Badge Earned Toast -->
+    <div class="toast hidden" id="badge-toast">
+        <div class="toast-icon">🎉</div>
+        <div class="toast-content">
+            <strong>获得新徽章！</strong>
+            <span id="badge-toast-name"></span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/data.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/badges.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/practice.js"></script>
+    <script src="js/report.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
